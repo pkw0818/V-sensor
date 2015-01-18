@@ -69,9 +69,17 @@ def potential(n, Cb, Vb):
     
     return PE
 
+def coloumb(n):
+    distance_lower = np.zeros((n,n))
+    for i in range(n):
+        temp = np.eye(n, k = i)*i  # this k is not k dot p's k
+        distance_lower = distance_lower + temp
+    distance_upper = distance_lower.T
+    distance = distance_lower + distance_upper
+    distance = distance + np.eye(n, k = 0)
+    distance = 1/distance - np.eye(n, k = 0)
     
-
-    
+    return distance
     
     
     
