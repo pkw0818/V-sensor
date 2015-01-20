@@ -8,7 +8,7 @@ Created on Sun Jan 18 22:42:59 2015
 from __future__ import division
 import pylab as plt
 import numpy as np
-from sub import parameter, geometry, matrix
+from sub import parameter, geometry, matrix, eigen
 
 material = 'CdSe'
 #material = 'ZnSe_CdS'
@@ -26,8 +26,11 @@ delta = 1e-15;              # use for avoid divergence in V(q)
 
 if material == 'CdSe':
     param = parameter.CdSe()
+    convgn = 'slowconv'
 elif material == 'ZnSe_CdS':
     param = parameter.ZnSe_CdS()
+    convgn = 'fastconv'
+    
 Eg = param[3]
 k = param[5]
 
@@ -55,35 +58,59 @@ if Vm_sweep == 0:
 Vm1d = Vm1d - (Vm/2)
 CbEg = cb1d + Eg/2
 VbEg = vb1d + Eg/2
-
 CbEgVm = cb1d + Eg/2 + Vm1d
 VbEgVm = vb1d + Eg/2 - Vm1d
+
 
 """
 Construct Hamiltonian & Solve initial Hamiltonian
 """
+# construct 2D + cylindrical matrix
 KE, Apoisson = matrix.kinetic(material, me1d, mh1d, er1d, n, msize, hbar, m, e, eo, k)
 PE = matrix.potential(n, CbEg, VbEg)
 
 Hamilton = KE + PE # Vm is not applied yet. 
-ev, ef = np.linalg.eigh(Hamilton)   
-   
+ev, ef = np.linalg.eigh(Hamilton)  # Eigen solver   
+eE, hE, ewf_addr, hwf_addr = eigen.Energy(ev, cb1d, vb1d)     # Get eigen value 
+psi_e, psi_h, psi_esq, psi_hsq = eigen.wfnormal(ef, n, msize) # normalization
 
-Cb_temp = abs(ev - min(cb1d))
-Vb_temp = abs(ev + min(vb1d))
-Cb_E_address = np.where(Cb_temp == min(abs(Cb_temp)))[0][0]
-Vb_E_address = np.where(Vb_temp == min(abs(Vb_temp)))[0][0]
-Cb_energy = ev[Cb_E_address]
-Vb_energy = ev[Vb_E_address]
+plt.figure()
+plt.plot(psi_esq)
+plt.plot(psi_hsq)
+
+distance = matrix.invdist(n)   # to get 1/|r1-r2|
+
+"""
+self-consistent iteration
+"""
+for i in range(0):
+    Ve, Vh = matrix.Coulomb(material, n, distance, psi_esq, psi_hsq, e, eo, er1d)
+    
+    if convgn == 'slowconv':   # increase field 10% each gradually
+        if i < 10:
+            slowV = Vm1d*(i+1)/10            
+            CbEgVm = CbEg + slowV
+            VbEgVm = VbEg - slowV
+    CbVm = np.diag(CbEgVm)  #Conduction band matrix
+    VbVm = np.diag(VbEgVm)  # Valenceband matrix
+    
+    PE = matrix.potential(n, CbVm, VbVm)
+    Vcoul = matrix.potential(n, -Vh, -Ve) 
+    Hamilton = KE + PE + Vcoul
+    ev, ef = np.linalg.eigh(Hamilton)  # Eigen solver   
+    
+    Ve1d = np.diag(Ve)
+    Vh1d = np.diag(Vh)
+    cbcorrect = CbEgVm - Vh1d
+    vbcorrect = VbEgVm - Ve1d
+    
+    eE, hE, ewf_addr, hwf_addr = eigen.Energy(ev, cbcorrect, vbcorrect)     # Get eigen value 
+    psi_e, psi_h, psi_esq, psi_hsq = eigen.wfnormal(ef, n, msize, ewf_addr, hwf_addr) # normalization
+
+    
+    plt.figure()
+    plt.plot(psi_esq)
+    plt.plot(psi_hsq)
 
 
-psi_e = ef[0:n, n]  
-psi_h = ef[n:2*n, n-1]
-psi_e_sq = psi_e*np.conjugate(psi_e)   
-psi_h_sq = psi_h*np.conjugate(psi_h)
-norm_e = sum(psi_e_sq) *msize
-norm_h = sum(psi_h_sq) *msize
-psi_e_sq_norm = psi_e_sq /msize
-psi_h_sq_norm = psi_h_sq /msize
-psi_e_norm = psi_e /np.sqrt(norm_e)   #normalized wf
-psi_h_norm = psi_h /np.sqrt(norm_h)
+

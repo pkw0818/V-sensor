@@ -69,7 +69,7 @@ def potential(n, Cb, Vb):
     
     return PE
 
-def coloumb(n):
+def invdist(n):
     distance_lower = np.zeros((n,n))
     for i in range(n):
         temp = np.eye(n, k = i)*i  # this k is not k dot p's k
@@ -81,5 +81,28 @@ def coloumb(n):
     
     return distance
     
+def Coulomb (material, n, distance, psi_esq, psi_hsq, e, eo, er1d):
+    if material == 'CdSe':
+        param = parameter.CdSe()
+        er_n = param[2]
+    elif material =='ZnSe_CdS':
+        param = parameter.CdSe()
+        er_1 = param[2]
+        er_2 = param[10]
+        er_n = (er_1 + er_2)/2
+            
+    Velectron = np.zeros(n)
+    Vhole = np.zeros(n)
+    e_over_r = np.zeros(n)
+    h_over_r = np.zeros(n)
+    for j in range(n):
+        e_over_r = np.multiply(distance[j,:], np.real(psi_esq))
+        h_over_r = np.multiply(distance[j,:], np.real(psi_hsq))
+        Velectron[j] = sum(e_over_r) / er1d[j]
+        Vhole[j] = sum(h_over_r) / er1d[j]
+    Velectron = Velectron*e/4/np.pi/eo/er_n
+    Vhole = Vhole*e/4/np.pi/eo/er_n
+    Ve = np.diag(Velectron)
+    Vh = np.diag(Vhole)
     
-    
+    return Ve, Vh
