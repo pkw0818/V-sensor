@@ -9,12 +9,16 @@ import numpy as np
 
 def wfnormal(ef, n, msize, *args):
     
-    psi_e = ef[0:n, n]  
-    psi_h = ef[n:2*n, n-1]
-
-    if args is not None:
-        psi_e = ef[0:n, args[0]]  
-        psi_h = ef[n:2*n, args[0]]
+    if args in locals():   # for iteration
+        psi_e = ef[0:n, args[0]] 
+        psi_h = ef[n:2*n, args[1]]
+    else:                  # for initial
+        psi_e = ef[0:n, n]  
+        psi_h = ef[n:2*n, n-1]
+    #for arg in args:
+    #    print(arg)
+    #f args is not None:
+        
         
     psi_e_sq = psi_e*np.conjugate(psi_e)   
     psi_h_sq = psi_h*np.conjugate(psi_h)
@@ -27,12 +31,29 @@ def wfnormal(ef, n, msize, *args):
     
     return psi_e_norm, psi_h_norm, psi_e_sq_norm, psi_h_sq_norm
     
-def Energy(ev, cb, vb):
-    Cb_temp = abs(ev - min(cb))
-    Vb_temp = abs(ev + min(vb))
-    Cb_E_address = np.where(Cb_temp == min(abs(Cb_temp)))[0][0]
-    Vb_E_address = np.where(Vb_temp == min(abs(Vb_temp)))[0][0]
-    Cb_E = ev[Cb_E_address]
-    Vb_E = ev[Vb_E_address]
+def Energy(n, ev, cb, vb):
     
-    return Cb_E, Vb_E, Cb_E_address, Vb_E_address
+    Cb_temp = -ev[0:n] - min(cb)
+    Vb_temp = ev[n:2*n] - min(vb)
+    temp1 = 100
+    temp2 = 100    
+    for i in range(n):
+        if temp1 > Cb_temp[i] and Cb_temp[i] > 0:
+            temp1 = Cb_temp[i]
+            ewf_addr = i
+        if temp2 > Vb_temp[i] and Vb_temp[i] > 0:
+            temp2 = Vb_temp[i]
+            hwf_addr = i    
+    hwf_addr += n
+    #ewf_addr = np.where(Cb_temp == min(abs(Cb_temp)))[0][0]
+    #hwf_addr = np.where(Vb_temp == min(abs(Vb_temp)))[0][0] + n
+    Cb_E = ev[ewf_addr]
+    Vb_E = ev[hwf_addr]
+    #Cb_temp = min(abs(ev[0:n])-cb)
+    #Vb_temp = min(abs(ev[n:2*n]))
+    #ewf_addr = np.where(abs(ev) == Cb_temp)[0][0]
+    #hwf_addr = np.where(abs(ev) == Vb_temp)[0][0]
+    #Cb_E = ev[ewf_addr]
+    #Vb_E = ev[hwf_addr]
+    
+    return Cb_E, Vb_E, ewf_addr, hwf_addr

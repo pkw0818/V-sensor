@@ -11,7 +11,7 @@ from __future__ import division
 from pylab import * 
 
 length_sweep=np.linspace(4e-9,4e-9,1) # [nm]
-Vm_sweep=np.linspace(-0.2, 0.2, 21)  # [V]
+Vm_sweep=np.linspace(-0.2, 0.2, 3)  # [V]
 dE=zeros(shape=(Vm_sweep.size, length_sweep.size, ), dtype=complex)
 kAmat=zeros(shape=(Vm_sweep.size, length_sweep.size), dtype=complex)
 overlap=zeros(shape=(Vm_sweep.size, length_sweep.size), dtype=complex)
@@ -20,14 +20,14 @@ overlap=zeros(shape=(Vm_sweep.size, length_sweep.size), dtype=complex)
 #output_dx2_int=np.zeros(shape=(801,sweep.size), dtype=complex)
 
 #import CdSe
-import sc_CdSe
-#import sc_ZnSe_CdS
+#import sc_CdSe
+import sc_ZnSe_CdS
 #import ZnSe_CdS
 #import TwocolorQD2
 for j in range(length_sweep.size):
     for i in range(Vm_sweep.size):
-        delta_E, kA, overlap_integral =sc_CdSe.sc_CdSe(length_sweep[j], Vm_sweep[i]);
-        #delta_E, kA, overlap_integral =sc_ZnSe_CdS.sc_ZnSe_CdS(length_sweep,Vm_sweep[i]);
+        #delta_E, kA, overlap_integral =sc_CdSe.sc_CdSe(length_sweep[j], Vm_sweep[i]);
+        delta_E, kA, overlap_integral =sc_ZnSe_CdS.sc_ZnSe_CdS(length_sweep,Vm_sweep[i]);
         #delta_E, delta_E2, overlap_integral, overlap_integral2, psi_h2_norm =TwocolorQD2.TwocolorQD2(sweep[i]);
         dE[i,j]=delta_E
         kAmat[i,j]=kA

@@ -302,6 +302,7 @@ def sc_ZnSe_CdS(length_sweep, Vm_sweep):
     #dos_Ef=m*mh1/pi/hbar/hbar*e   
     kA=2*pi/hbar*abs(Mif)**(2)*dos_Ef              #[s/J * (J)^2 *  * J^-1]
     Aug_life=1/kA
+    
     e_h_multiple=conjugate(psi_e_norm)*psi_h_norm
     spatial_sum=sum(e_h_multiple)*space
     overlap_integral=abs(spatial_sum)**2

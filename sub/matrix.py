@@ -86,7 +86,7 @@ def Coulomb (material, n, distance, psi_esq, psi_hsq, e, eo, er1d):
         param = parameter.CdSe()
         er_n = param[2]
     elif material =='ZnSe_CdS':
-        param = parameter.CdSe()
+        param = parameter.ZnSe_CdS()
         er_1 = param[2]
         er_2 = param[10]
         er_n = (er_1 + er_2)/2
@@ -100,9 +100,9 @@ def Coulomb (material, n, distance, psi_esq, psi_hsq, e, eo, er1d):
         h_over_r = np.multiply(distance[j,:], np.real(psi_hsq))
         Velectron[j] = sum(e_over_r) / er1d[j]
         Vhole[j] = sum(h_over_r) / er1d[j]
-    Velectron = Velectron*e/4/np.pi/eo/er_n
-    Vhole = Vhole*e/4/np.pi/eo/er_n
-    Ve = np.diag(Velectron)
-    Vh = np.diag(Vhole)
+    Ve = Velectron*e/4/np.pi/eo/er_n
+    Vh = Vhole*e/4/np.pi/eo/er_n
+    #Ve = np.diag(Velectron)
+    #Vh = np.diag(Vhole)
     
     return Ve, Vh
