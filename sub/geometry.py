@@ -6,7 +6,6 @@ Created on Sun Jan 18 23:12:32 2015
 """
 from __future__ import division
 import numpy as np
-import piecewise2      #make a piecewise function with x as region, y as value
 import parameter
 
 def geo1d(material, L, Qw, msize):
@@ -55,11 +54,24 @@ def geo1d(material, L, Qw, msize):
         indx[var] = (region[var]-region[0])/msize        
     
     
-    Cb1d = piecewise2.piecewise2(indx,CB_value)
-    Vb1d = piecewise2.piecewise2(indx,VB_value)
-    er1d = piecewise2.piecewise2(indx,er_value)
-    me1d = piecewise2.piecewise2(indx,me_value)
-    mh1d = piecewise2.piecewise2(indx,mh_value)
+    Cb1d = piecewise(indx,CB_value)
+    Vb1d = piecewise(indx,VB_value)
+    er1d = piecewise(indx,er_value)
+    me1d = piecewise(indx,me_value)
+    mh1d = piecewise(indx,mh_value)
     
     return Cb1d, Vb1d, er1d, me1d, mh1d
-    
+
+def piecewise(indx,value):
+    result=np.zeros(indx[-1]+1)
+    for i in range(indx.size-1):
+        if type(value[i])==str:
+            value[i]=0
+            for j in range(int(indx[i]), int(indx[i+1])):
+                result[j]=value[i-1]+(value[i+1]-value[i-1])/(indx[i+1]-indx[i])*(j-indx[i])
+                #result[indx[i]:indx[i+1]]=value[i-1]
+        else:
+            result[indx[i]:indx[i+1]]=value[i]
+    result[indx[i+1]]=value[i]
+    result=np.array(result)
+    return result

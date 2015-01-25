@@ -41,9 +41,9 @@ hole_barrier = param[7]
 
 """ Define Geometry  """
 
-length = 4.41e-9
-Vm_sweep = 0
-Qw = length
+#length = 2e-9
+#Vm_sweep = 0.2
+Qw = length + 0.05e-9
 L = Qw + 2e-9 
 msize = 0.5e-10
 X = np.linspace(-L , L, 2*L/msize +1)
@@ -111,9 +111,9 @@ for i in range(20):
     psi_e, psi_h, psi_esq, psi_hsq = \
     eigen.wfnormal(ef, n, msize, ewf_addr, hwf_addr) # normalization
 
-    #plt.figure()
-    #plt.plot(psi_esq)
-    #plt.plot(psi_hsq)
+    plt.figure()
+    plt.plot(cbcorrect)
+    plt.plot(psi_esq)
     print('%d st iteration.  Electron Energy = %.3f') % (i+2,  eE)
     
     if convgn == 'slowconv' and i >10:
@@ -132,15 +132,15 @@ for i in range(20):
 cc_e = np.conjugate(psi_e)
 cc_h = np.conjugate(psi_h)
 
-delta_E = eE - hE  # dE
+delta_E = abs(eE - hE)  # dE
 e_h_multiple = cc_e *psi_h
 spatial_sum = sum(e_h_multiple) *msize
 overlap_integral = abs(spatial_sum)**2
-tau = 2*np.pi*eo*m*(3e8**3)*(hbar**2)/np.sqrt(2.5)/(e**2)/(Eg+delta_E)/Ep/e/e/overlap_integral
+tau = 2*np.pi*eo*m*(3e8**3)*(hbar**2)/np.sqrt(2.5)/(e**2)/delta_E/Ep/e/e/overlap_integral
 
 """ Calculation Auger rate """
 eq_x1 = cc_e * cc_h
-Eex = Eg- hole_barrier + (eE-Eg/2) + 2*abs(hE+Eg/2)  # excited energy of hole
+Eex = Eg- hole_barrier + abs(eE-Eg/2) + 2*abs(hE-Eg/2)  # excited energy of hole
 kf = np.sqrt(2*m*mh1*Eex*e)/ hbar  # [1/m]
 phi_F = 1/np.sqrt(2*L)*(np.e)**(-1j*kf*X)       #[1/sqrt(m)]
 
@@ -161,4 +161,4 @@ Aug_life = 1/kA
 #Eex=kf**(2)*hbar**(2)/2/m/mh1/e              #[eV]
 #dos_Ef=1/pi/hbar*sqrt(m*mh1/2/Eex/e)*2*Qw           #[1/J)]
 #dos_Ef=m*mh1/pi/hbar/hbar*e   
-    #return delta_E, tau, overlap_integral, kA
+#return delta_E, tau, overlap_integral, kA

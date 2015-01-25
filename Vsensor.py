@@ -18,16 +18,16 @@ kAmat = np.zeros(shape=(Vm_sweep.size, length_sweep.size), dtype=complex)
 
 #output_hwf2=np.zeros(shape=(501,length_sweep.size), dtype=complex)
 #output_dx2_int=np.zeros(shape=(801,sweep.size), dtype=complex)
-material = 'CdSe'
-#material = 'ZnSe_CdS'
+#material = 'CdSe'
+material = 'ZnSe_CdS'
 
 for j in range(length_sweep.size):
     for i in range(Vm_sweep.size):        
         delta_E, tau, overlap_integral, kA = main.QCSE(material, length_sweep[j], Vm_sweep[i])
         dE[i,j] = delta_E
-        taum[i,j] = tau
-        overlap[i,j] = overlap_integral
-        kAmat[i,j] = kA
+        taum[i,j] = tau   # radiative lifetime
+        overlap[i,j] = overlap_integral  
+        kAmat[i,j] = kA   # Auger rate
         #output[i,3]=overlap_integral2;
         #aa=abs(psi_h2_norm)
         #output_hwf2[:,i]=aa#[:,0]

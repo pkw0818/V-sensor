@@ -37,7 +37,7 @@ def ZnSe_CdS():
     Vbo = 0.52
     k = np.sqrt(Ep/2)
     ebarrier = 4.09 # electron affinity
-    hbarrier = 1
+    hbarrier = 0.52
     znseparam = (me1, mh1, er1, Eg, Ep, k, ebarrier, hbarrier, me2, mh2, er2, Cbo, Vbo)
     
     return znseparam
