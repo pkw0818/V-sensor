@@ -132,15 +132,15 @@ def QCSE(material, length, Vm_sweep):
     cc_e = np.conjugate(psi_e)
     cc_h = np.conjugate(psi_h)
     
-    delta_E = eE - hE  # dE
+    delta_E = abs(eE - hE)  # dE
     e_h_multiple = cc_e *psi_h
     spatial_sum = sum(e_h_multiple) *msize
     overlap_integral = abs(spatial_sum)**2
-    tau = 2*np.pi*eo*m*(3e8**3)*(hbar**2)/np.sqrt(2.5)/(e**2)/(Eg+delta_E)/Ep/e/e/overlap_integral
+    tau = 2*np.pi*eo*m*(3e8**3)*(hbar**2)/np.sqrt(2.5)/(e**2)/delta_E/Ep/e/e/overlap_integral
     
     """ Calculation Auger rate """
     eq_x1 = cc_e * cc_h
-    Eex = Eg- hole_barrier + (eE-Eg/2) + 2*abs(hE+Eg/2)  # excited energy of hole
+    Eex = Eg- hole_barrier + abs(eE-Eg/2) + 2*abs(hE-Eg/2)  # excited energy of hole
     kf = np.sqrt(2*m*mh1*Eex*e)/ hbar  # [1/m]
     phi_F = 1/np.sqrt(2*L)*(np.e)**(-1j*kf*X)       #[1/sqrt(m)]
     
